@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Minesweeper</title>
+    <link rel="icon" href="img/pacmen.png">
+    <link rel="stylesheet" href="css/app.css">
+
+</head>
+
+<body onload="init()">
+    <h1>Minesweeper</h1>
+    <div>
+        <input type="radio" value="4" name="levelGame" onclick="changeLevel(this)" checked>
+        <label for="easy"> Easy</label>
+        <input type="radio" value="8" name="levelGame" onclick="changeLevel(this)">
+        <label for="medium">Medium</label>
+        <input type="radio" value="12" name="levelGame" onclick="changeLevel(this)">
+        <label for="hard">Hard</label>
+    </div>
+    <h2> <span></span></h2>
+    <button onclick="init()">Restart</button>
+    <div class="board-container"></div>
+    <script src="js/utils.js"></script>
+    <script src="js/game.js"></script>
+    <div class="footer">Tal Segal© </div>
+</body>
+
+</html>
