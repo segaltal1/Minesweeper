@@ -21,12 +21,21 @@
         <input type="radio" value="12" name="levelGame" onclick="changeLevel(this)">
         <label for="hard">Hard</label>
     </div>
-    <h2> <span></span></h2>
-    <button onclick="init()">Restart</button>
+    <div class="game">
+        <button class="timer"></button>
+        <button class="safe-click" onclick="expandRandomCell()">Safe Clicks:<span> 3</span></button>
+        <div class="emoji" onclick="init()">&#128512;</div>
+        <div class="clue-img" style="display: inline;"onclick="clue()">
+            <img src="img/clue.png" ><span class='clue-count'>3</span>
+        </div>
+        <label class="heart"></label>
+    </div>
+
     <div class="board-container"></div>
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>
-    <div class="footer">Tal Segal© </div>
+    <script src="js/timer.js"></script>
+    <div class="footer" hidden>© Tal Segal </div>
 </body>
 
 </html>

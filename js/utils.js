@@ -3,13 +3,13 @@ function printMat(mat, selector) {
   for (var i = 0; i < mat.length; i++) {
     strHTML += '<tr>';
     for (var j = 0; j < mat[0].length; j++) {
-      if(mat[i][j].isMarked)cell = FLAG
+      if (mat[i][j].isMarked) cell = FLAG
       else {
         var inputCell = mat[i][j].isShown ? mat[i][j].minesAroundCount : EMPTY
-        var cell = mat[i][j].isMine &&  mat[i][j].isShown ? MINE : inputCell;
+        var cell = mat[i][j].isMine && mat[i][j].isShown ? MINE : inputCell;
       }
-
       var className = 'cell cell' + '-' + i + '-' + j;
+      if (mat[i][j].isMine && mat[i][j].isShown) className += ' bomb'
       strHTML += `<td class="${className}" onmousedown="cellClick(this)">${cell}</td>`
     }
     strHTML += '</tr>'
@@ -17,6 +17,7 @@ function printMat(mat, selector) {
   strHTML += '</tbody></table>';
   var elContainer = document.querySelector(selector);
   elContainer.innerHTML = strHTML;
+
 }
 // Gets a string such as:  'cell-2-7' and returns {i:2, j:7}
 function getCellCoord(strCellId) {
@@ -47,7 +48,27 @@ function countMinesAround(mat, rowIdx, colIdx) {
   }
   return minesCounter
 }
+function clearBombs() {
+  var elBombs = document.querySelectorAll('.bomb')
+  for (var i = 0; i < elBombs.length; i++) {
+    elBombs[i].classList.remove('bomb')
+  }
+}
 
 function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function copyBoard(board) {
+  var newArray = [];
+  for (var i = 0; i < board.length; i++) {
+    newArray[i] = []
+    for (var j = 0; j < board.length; j++) {
+      newArray[i][j] = board[i][j];
+    }
+  }
+  return newArray
+}
+
+
+
