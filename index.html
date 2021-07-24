@@ -13,29 +13,29 @@
 
 <body onload="init()">
     <h1>Minesweeper</h1>
-    <div>
-        <input type="radio" value="4" name="levelGame" onclick="changeLevel(this)" checked>
-        <label for="easy"> Easy</label>
-        <input type="radio" value="8" name="levelGame" onclick="changeLevel(this)">
-        <label for="medium">Medium</label>
-        <input type="radio" value="12" name="levelGame" onclick="changeLevel(this)">
-        <label for="hard">Hard</label>
+    <div class="level-game">
+        <input type="radio" value="4" name="levelGame" id="1" onclick="changeLevel(this)" checked hidden>
+        <label for="1"> Easy</label>
+        <input type="radio" value="8" name="levelGame" id="2" onclick="changeLevel(this)" hidden>
+        <label for="2">Medium</label>
+        <input type="radio" value="12" name="levelGame" id="3" onclick="changeLevel(this)" hidden>
+        <label for="3">Hard</label>
     </div>
     <div class="game">
         <button class="timer"></button>
         <button class="safe-click" onclick="expandRandomCell()">Safe Clicks:<span> 3</span></button>
         <div class="emoji" onclick="init()">&#128512;</div>
-        <div class="clue-img" style="display: inline;"onclick="clue()">
-            <img src="img/clue.png" ><span class='clue-count'>3</span>
+        <div class="clue-img" style="display: inline;" onclick="clue()">
+            <img src="img/clue.png"><span class='clue-count'>3</span>
         </div>
         <label class="heart"></label>
     </div>
 
     <div class="board-container"></div>
+    <footer>© Tal Segal </footer>
+ 
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>
     <script src="js/timer.js"></script>
-    <div class="footer" hidden>© Tal Segal </div>
 </body>
-
 </html>

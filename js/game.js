@@ -1,6 +1,6 @@
 'use strict'
 const MINE = '&#128163'
-const FLAG = '🚩'
+const FLAG = '<span class="flag">🚩</span>'
 const EMPTY = ' ';
 var gClueCounter = 3;
 var isClueMode = false
@@ -22,8 +22,10 @@ var gLevel = {
 
 
 function init() {
+    gClueCounter = 3;
     firstClickCounter = 0;
-    gSafeClicks =3;
+    gSafeClicks = 3;
+    document.querySelector('.clue-count').innerText = gClueCounter
     document.querySelector('.safe-click').innerText = 'Safe Clicks: ' + gSafeClicks;
     gLifeCounter = gLevel.MINES > 2 ? 3 : 1;
     gGame.shownCount = 0;
@@ -59,7 +61,7 @@ function buildBoard() {
 
 //expand negs or hide them by value isSHOW
 function expandNegs(clickedIndex, isShow) {
-    console.log(clickedIndex);
+    gHintsNegs = [];
     for (var i = clickedIndex.i - 1; i <= clickedIndex.i + 1; i++) {
         if (i < 0 || i >= gBoard.length) continue;
         for (var j = clickedIndex.j - 1; j <= clickedIndex.j + 1; j++) {
@@ -89,7 +91,6 @@ function expandRandomCell() {
     var randomIdx = getRandomEmptyCell();
     gSafeClicks--;
     document.querySelector('.safe-click').innerText = 'Safe Clicks: ' + gSafeClicks;
-    console.log(randomIdx);
     var elCell = document.querySelector(`.cell-${randomIdx.i}-${randomIdx.j}`);
     elCell.classList.add('safe')
     console.log(elCell);
@@ -114,22 +115,21 @@ function getSafeCell() {
 
 //set clue to board game by index clicked expand all negs around
 function clue(location) {
-    //check if user use all clues
+    //check if user use all clues ends
     if (!gClueCounter) return;
     //setting the clue light marked border
     var elClue = document.querySelector('.clue-img');
     if (!elClue.classList.contains('clicked')) {
         elClue.classList.add('clicked')
-        console.log(elClue.innerText);
         isClueMode = true;
         gClueCounter--;
     }
     //back the clue image to original
-    setTimeout(function () {
-        isClueMode = false;
-        document.querySelector('.clue-count').innerText = gClueCounter
-        elClue.classList.remove('clicked');
-    }, 1500);
+    // setTimeout(function () {
+    //     isClueMode = false;
+    //     document.querySelector('.clue-count').innerText = gClueCounter
+    //     elClue.classList.remove('clicked');
+    // }, 1500);
 }
 
 //this function set life emoji to board update when bomb clicked
@@ -142,11 +142,14 @@ function setLifesEmoji() {
 }
 //set level by user choose
 function changeLevel(elRadio) {
+    // debugger
+    stopTimer();
     // gBoard = buildBoard(+elRadio.value);
     gLevel.SIZE = +elRadio.value;
     if (gLevel.SIZE === 4) { gLevel.MINES = 2; }
     if (gLevel.SIZE === 8) gLevel.MINES = 12
     if (gLevel.SIZE === 12) gLevel.MINES = 30
+    // debugger
     init();
 
 }
@@ -184,8 +187,9 @@ function getRandomEmptyCell() {
     var emptyCells = [];
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
-            if (!gBoard[i][j].isMine || gBoard[i][j] === EMPTY) emptyCells.push({ i: i, j: j })
-
+            //find all cells that not exposed
+            var currCell = gBoard[i][j];
+            if (!currCell.isShown && !currCell.isMine) emptyCells.push({ i: i, j: j })
         }
     }
     if (emptyCells.length !== 0) {
@@ -195,6 +199,7 @@ function getRandomEmptyCell() {
     return null;
 }
 
+//this function expand cells 
 function expandShown(board, elCell) {
     var clickedIndex = getCellCoord(elCell.className)
     var currCell = board[clickedIndex.i][clickedIndex.j]
@@ -209,9 +214,27 @@ function expandShown(board, elCell) {
             restoreBoard();
             printMat(gBoard, '.board-container');
         }, 1000);
+        //back the clue image to original
+        setTimeout(function () {
+            var elClue = document.querySelector('.clue-img');
+            isClueMode = false;
+            document.querySelector('.clue-count').innerText = gClueCounter
+            elClue.classList.remove('clicked');
+        }, 1000);
+    }
+
+    //if first click on mine
+    if (!firstClickCounter++) {
+        if (currCell.isMine) {
+            currCell.isShown = true;
+            gGame.markedCount++;
+            printMat(board, '.board-container');
+            return;
+        }
+
     }
     if (currCell.isMarked || currCell.isShown) return;
-    //if clicked on mine - game over 
+    //if clicked on mine 
     if (board[clickedIndex.i][clickedIndex.j].isMine) {
         gLifeCounter--;
         setLifesEmoji();
@@ -228,7 +251,6 @@ function expandShown(board, elCell) {
         }
     }
 
-
     if (currMinesAround > 0) {
         board[clickedIndex.i][clickedIndex.j].isShown = true;
         gGame.shownCount++;
@@ -236,35 +258,32 @@ function expandShown(board, elCell) {
         checkWin()
         return;
     }
-    // debugger
+    // if  mines around is zero 
     else {
+        expandAllZero(clickedIndex);
+        checkWin();
+    }
+}
 
-        for (var i = clickedIndex.i - 1; i <= clickedIndex.i + 1; i++) {
-            if (i < 0 || i >= board.length) continue;
-            for (var j = clickedIndex.j - 1; j <= clickedIndex.j + 1; j++) {
-                if (j < 0 || j >= board[0].length) continue;
-                //if (i === clickedIndex.i && j === clickedIndex.j) continue;
-                var cell = board[i][j];
-                if (cell.isMarked) {
-                    continue
-                }
-                //render each cell of neg
-                if (!cell.isShown) {
-                    cell.isShown = true;
-                    if (cell.isMine) {
-                        if (cell.isShown) var value = 'MINE'
-                        else value = EMPTY
-                    }
-                    else value = cell.minesAroundCount
-                    renderCell({ i: i, j: j }, value)
-                    gGame.shownCount++;
-                }
-            }
+function expandAllZero(clickedIndex) {
+    var currCell = gBoard[clickedIndex.i][clickedIndex.j]
+    console.log(clickedIndex);
+    for (var i = clickedIndex.i - 1; i <= clickedIndex.i + 1; i++) {
+        if (i < 0 || i >= gBoard.length) continue;
+        for (var j = clickedIndex.j - 1; j <= clickedIndex.j + 1; j++) {
+            if (j < 0 || j >= gBoard[0].length) continue;
+            var currCell = gBoard[i][j]
+            // debugger
+            if(currCell.isMine) return;
+            if(currCell.isMarked )continue;
+
+            if (currCell.isShown) {continue; }
+            currCell.isShown = true;
+            if(currCell.minesAroundCount === 0 &&!currCell.isMarked) expandAllZero({i:i,j:j})
+            
         }
     }
-    checkWin();
-    // printMat(board, '.board-container');
-
+    printMat(gBoard, '.board-container');
 }
 
 //this function checking if the player win 
@@ -289,32 +308,21 @@ function checkWin() {
 }
 
 function cellClick(elCell) {
-    //checking the first click
-    if (!firstClickCounter) {
-        firstClickCounter++;
-        return;
-    }
-    if (firstClickCounter++ == 1) timerCycle();
-
     var ev = window.event;
     // Prevents context menu from showing
     window.addEventListener('contextmenu', function (elCell) {
         elCell.preventDefault();
     }, false);
-
+    // debugger
+    startTimer();
     //left click
     if (ev.which === 1) {
-
         expandShown(gBoard, elCell)
     }
     //right click
     else if (ev.which === 3) {
-
         setFlag(elCell)
-
     }
-
-
 }
 
 //this function set flag on board 
@@ -330,18 +338,14 @@ function setFlag(elCell) {
         currCell.isMarked = false
         renderCell(clickedIndex, EMPTY);
         return;
-
     }
-
     else {
-
         //update the dom
         currCell.isMarked = true;
         checkWin()
         //update modal
         renderCell(clickedIndex, FLAG);
         console.log(gGame.markedCount);
-
     }
 
 }
